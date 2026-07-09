@@ -1,0 +1,25 @@
+version: '3.3'
+
+services:
+  disease-predictor:
+    image: disease-predictor:arm64
+    build:
+      context: .
+      dockerfile: Dockerfile.arm64
+    container_name: disease-material-predictor
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - AUTH_REQUIRED=true
+      - API_KEYS=your-secret-api-key-here
+    volumes:
+      - ./app.log:/app/app.log
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/predictor/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
